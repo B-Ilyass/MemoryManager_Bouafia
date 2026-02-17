@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Simulatore RAM</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <h2>Memory Manager</h2>
+    
+    <!--  DESCRIZIONE -->
+    <div class="box">
+        <h3>Descrizione</h3>
+        <p><b>First Fit:</b> scorre i blocchi liberi dall’inizio e alloca nel primo abbastanza grande. 
+            Pro: semplice e veloce. 
+            Contro: può lasciare tanti piccoli buchi vicino all’inizio (frammentazione esterna).</p>
+        <p><b>Best Fit:</b> sceglie il blocco libero più piccolo che sia comunque sufficiente. 
+            Pro: riduce lo spreco interno del blocco allocato. 
+            Contro: tende a creare molte “briciole” di memoria (frammentazione esterna) e la ricerca è più lenta.</p>
+        <p><b>Worst Fit:</b> prende il blocco libero più grande disponibile. 
+            Pro: cerca di lasciare blocchi liberi ancora utilizzabili dopo l’allocazione. 
+            Contro: può sprecare parecchia memoria interna e non sempre porta a un uso efficiente andando a lungo termine.</p>
+    </div>
+
+    <!--  DATI -->
+    <div class="box">
+        <h3>Controlli</h3>
+        RAM (KB): <input type="number" id="inputRam" value="1024">
+        Algoritmo: 
+        <select id="selectAlgo">
+            <option value="first">First Fit</option>
+            <option value="best">Best Fit</option>
+            <option value="worst">Worst Fit</option>
+        </select>
+        <button onclick="inizializzaRAM()">reset</button>
+        <br><br>
+        Nome: <input type="text" id="inputNome" placeholder="P1">
+        Dim (KB): <input type="number" id="inputDim" value="100">
+        <button onclick="aggiungiProcesso()">Aggiungi</button>
+    </div>
+
+    <!--  DISEGNO -->
+    <div class="box">
+        <h3>Memoria (clicca per allocare/deallocare)</h3>
+        <center><div id="canvas"></div></center>
+    </div>
+
+    <!--  CALCOLI -->
+    <div class="box">
+        <h3>Calcoli</h3>
+        <p>Totale: <b id="statTotale">-</b></p>
+        <p>Libera: <b id="statLibera">-</b></p>
+        <p>Usata: <b id="statUsata">-</b></p>
+        <p>Utilizzo: <b id="statUtilizzo">-</b></p>
+        <p>Frammentazione esterna: <b id="statFramm">-</b></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
