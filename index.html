@@ -11,14 +11,23 @@
     <!--  DESCRIZIONE -->
     <div class="box">
         <h3>Descrizione</h3>
-        <p><b>First Fit:</b> scorre i blocchi liberi dall’inizio e alloca nel primo abbastanza grande. 
-            Pro: semplice e veloce. 
-            Contro: può lasciare tanti piccoli buchi vicino all’inizio (frammentazione esterna).</p>
+        <h2>Partizioni Dinamiche</h2>
+
+        <!-- spiegazione generale delle partizioni dinamiche -->
+        <p>Nelle <b>partizioni dinamiche</b> la memoria viene divisa in blocchi 
+        di dimensione variabile, creati al momento dell'allocazione. 
+        Non esistono partizioni fisse: ogni processo occupa esattamente 
+        lo spazio che richiede. Col tempo possono formarsi buchi (frammentazione esterna).</p>
+        <hr>
+
+        <p><b>First Fit:</b> scorre i blocchi liberi dall'inizio e alloca nel primo abbastanza grande. 
+            Pro: è veloce. 
+            Contro: può lasciare tanti piccoli buchi vicino all'inizio (frammentazione esterna).</p>
         <p><b>Best Fit:</b> sceglie il blocco libero più piccolo che sia comunque sufficiente. 
             Pro: riduce lo spreco interno del blocco allocato. 
-            Contro: tende a creare molte “briciole” di memoria (frammentazione esterna) e la ricerca è più lenta.</p>
+            Contro: tende a creare molte "briciole" di memoria (frammentazione esterna) e la ricerca è più lenta.</p>
         <p><b>Worst Fit:</b> prende il blocco libero più grande disponibile. 
-            Pro: cerca di lasciare blocchi liberi ancora utilizzabili dopo l’allocazione. 
+            Pro: cerca di lasciare blocchi liberi ancora utilizzabili dopo l'allocazione. 
             Contro: può sprecare parecchia memoria interna e non sempre porta a un uso efficiente andando a lungo termine.</p>
     </div>
 

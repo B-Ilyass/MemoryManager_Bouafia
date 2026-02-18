@@ -2,6 +2,11 @@ body {
     font-family: Arial;
     margin: 20px;
     text-align: center;
+    background-color: #f5f5f5; 
+}
+
+h2 {
+    color: #333;
 }
 
 .box {
@@ -10,14 +15,31 @@ body {
     margin: 10px auto;
     max-width: 700px;
     text-align: left;
+    background-color: #fff;       
+    border-radius: 6px;           
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
 }
 
-button {
-    padding: 8px 15px;
-    margin: 5px;
+.box h3 {
+    margin-top: 0;
+    color: #555;
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 6px;
+}
+
+button:hover {
+    background-color: #d0d0d0;   
 }
 
 input, select {
     padding: 5px;
     margin: 5px;
+    border-radius: 4px;
+    border: 1px solid #bbb;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 10px 0;
 }

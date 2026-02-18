@@ -1,9 +1,10 @@
 //  DATI 
 
+// array e variabili globali
 let ramTotale = 1024;
-let memoriaRAM = [];  
-let codaProcessi = []; 
-let contatore = 0;
+let memoriaRAM = [];   // blocchi di memoria (SO, liberi, occupati)
+let codaProcessi = []; // processi in attesa di essere allocati
+let contatore = 0;     // conta i processi aggiunti, serve per i colori
 
 let coloriProcessi = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3'];
 
@@ -13,8 +14,8 @@ function setup() {
     inizializzaRAM();
 }
 
+// richiamo le funzioni per disegnare la RAM
 function draw() {
-
     background(230);
     
     disegnaRAM();
@@ -27,6 +28,7 @@ function draw() {
 
 function disegnaRAM() {
 
+    // bordo esterno della RAM
     stroke(0);
     strokeWeight(2);
     noFill();
@@ -35,8 +37,11 @@ function disegnaRAM() {
     // disegno ogni blocco
     for (let i = 0; i < memoriaRAM.length; i++) {
         let blocco = memoriaRAM[i];
+        // posizione Y proporzionale all'indirizzo di inizio
         let posY = 40 + (blocco.inizio / ramTotale) * 300;
         let altezza = (blocco.dimensione / ramTotale) * 300;
+
+        // colore diverso per SO, libero e occupato
         if (blocco.nome == "SO") {
             fill(150, 100, 200);
         } else if (blocco.libero) {
@@ -48,7 +53,7 @@ function disegnaRAM() {
         strokeWeight(1);
         rect(40, posY, 130, altezza);
         
-        // testo dentro il blocco
+        // testo dentro il blocco (solo se abbastanza alto)
         fill(0);
         noStroke();
         textAlign(CENTER, CENTER);
@@ -59,9 +64,9 @@ function disegnaRAM() {
         }
         stroke(0);
     }
-
 }
 
+// disegno processi in coda, man mano che si aggiungono si spostano uno a fianco di un altro e successivamente sotto
 function disegnaCodaProcessi() {
     fill(0);
     textSize(16);
@@ -70,6 +75,7 @@ function disegnaCodaProcessi() {
     textSize(11);
     text("(clicca per allocare)", 220, 42);
     
+    // se la coda è vuota mostro messaggio
     if (codaProcessi.length == 0) {
         textSize(12);
         fill(100);
@@ -77,6 +83,7 @@ function disegnaCodaProcessi() {
         return;
     }
     
+    // disegno ogni processo come rettangolo colorato
     let posX = 220, posY = 60;
     for (let i = 0; i < codaProcessi.length; i++) {
         let p = codaProcessi[i];
@@ -93,11 +100,13 @@ function disegnaCodaProcessi() {
         textSize(11);
         text(p.dimensione + " KB", posX + 40, posY + 36);
         
+        // vado a capo se supero il bordo
         posX += 90;
         if (posX > 520) { posX = 220; posY += 60; }
     }
 }
 
+// disegno legenda per identificare i colori dei blocchi (SO, libero, occupato)
 function disegnaLegenda() {
     let posX = 220, posY = 320;
     textSize(12);
@@ -128,7 +137,7 @@ function inizializzaRAM() {
     codaProcessi = [];
     contatore = 0;
     
-    // sistema operativo 
+    // blocco fisso del sistema operativo (sempre 100 KB all'inizio)
     memoriaRAM.push({
         inizio: 0,
         dimensione: 100,
@@ -137,7 +146,7 @@ function inizializzaRAM() {
         colore: null
     });
     
-    //  memoria libera
+    // resto della RAM libero
     memoriaRAM.push({
         inizio: 100,
         dimensione: ramTotale - 100,
@@ -153,7 +162,7 @@ function aggiungiProcesso() {
     let nome = document.getElementById('inputNome').value;
     let dimensione = int(document.getElementById('inputDim').value);
     
-    // fa se processo senza nome
+    // nome di default se non inserito
     if (nome == "") {
         nome = "P" + contatore;
     }
@@ -163,6 +172,7 @@ function aggiungiProcesso() {
         return;
     }
     
+    // aggiungo il processo alla coda con il suo colore
     codaProcessi.push({
         nome: nome,
         dimensione: dimensione,
@@ -173,25 +183,40 @@ function aggiungiProcesso() {
     document.getElementById('inputNome').value = "";
 }
 
-// allocazione 
+// allocazione: cerca il blocco giusto in base all'algoritmo scelto
 function allocaProcesso(indice) {
     let processo = codaProcessi[indice];
     let algoritmo = document.getElementById('selectAlgo').value;
-    let blocchiLiberi = memoriaRAM.filter(b => b.libero && b.dimensione >= processo.dimensione);
+
+    // filtro solo i blocchi liberi abbastanza grandi
+    let blocchiLiberi = [];
+    for (let i = 0; i < memoriaRAM.length; i++) {
+        if (memoriaRAM[i].libero && memoriaRAM[i].dimensione >= processo.dimensione) {
+            blocchiLiberi.push(memoriaRAM[i]);
+        }
+    }
     
     if (blocchiLiberi.length === 0) {
         alert("Memoria insufficiente per " + processo.nome);
         return;
     }
     
+    // scelgo il blocco in base all'algoritmo
     let blocco = algoritmo === "first" ? blocchiLiberi[0] :
                  algoritmo === "best" ? blocchiLiberi.reduce((min, b) => b.dimensione < min.dimensione ? b : min) :
                  blocchiLiberi.reduce((max, b) => b.dimensione > max.dimensione ? b : max);
-    
+                 algoritmo === "worst" ? blocchiLiberi.reduce((max, b) => b.dimensione > max.dimensione ? b : max) : blocchiLiberi[0];
+                
     let bloccoTrovato = memoriaRAM.indexOf(blocco);
     let spazioRestante = blocco.dimensione - processo.dimensione;
-    Object.assign(blocco, { dimensione: processo.dimensione, libero: false, nome: processo.nome, colore: processo.colore });
+
+    // occupo il blocco con i dati del processo
+    blocco.dimensione = processo.dimensione;
+    blocco.libero = false;
+    blocco.nome = processo.nome;
+    blocco.colore = processo.colore;
     
+    // se avanza spazio creo un nuovo blocco libero subito dopo
     if (spazioRestante > 0) {
         memoriaRAM.splice(bloccoTrovato + 1, 0, {
             inizio: blocco.inizio + processo.dimensione,
@@ -202,6 +227,7 @@ function allocaProcesso(indice) {
         });
     }
     
+    // rimuovo il processo dalla coda
     codaProcessi.splice(indice, 1);
     calcolaStatistiche();
 }
@@ -211,8 +237,12 @@ function deallocaProcesso(indice) {
     let blocco = memoriaRAM[indice];
     if (blocco.nome === "SO" || blocco.libero) return;
     
-    Object.assign(blocco, { libero: true, nome: null, colore: null });
+    // segno il blocco come libero
+    blocco.libero = true;
+    blocco.nome = null;
+    blocco.colore = null;
     
+    // unisco i blocchi liberi 
     for (let i = 0; i < memoriaRAM.length - 1; i++) {
         if (memoriaRAM[i].libero && memoriaRAM[i].nome !== "SO" && memoriaRAM[i+1].libero) {
             memoriaRAM[i].dimensione += memoriaRAM[i+1].dimensione;
@@ -223,10 +253,22 @@ function deallocaProcesso(indice) {
     calcolaStatistiche();
 }
 
+// compatta i blocchi di memoria libera 
+function compattaMemoria() {
+    for (let i = 0; i < memoriaRAM.length - 1; i++) {
+        if (memoriaRAM[i].libero && memoriaRAM[i].nome !== "SO" && memoriaRAM[i+1].libero) {
+            memoriaRAM[i].dimensione += memoriaRAM[i+1].dimensione;
+            memoriaRAM.splice(i+1, 1);
+            i--;
+        }
+    }
+}
+
 
 // CALCOLI 
 
 function calcolaStatistiche() {
+    // sommo memoria libera e usata, conto i blocchi liberi e trovo il più grande
     let stats = memoriaRAM.reduce((acc, b) => {
         if (b.libero) {
             acc.libera += b.dimensione;
@@ -238,6 +280,7 @@ function calcolaStatistiche() {
         return acc;
     }, { libera: 0, usata: 0, liberiCount: 0, maxLibero: 0 });
     
+    // frammentazione esterna = memoria libera totale meno il blocco libero più grande
     let framm = stats.liberiCount > 1 ? stats.libera - stats.maxLibero : 0;
     
     const dati = {
@@ -251,14 +294,15 @@ function calcolaStatistiche() {
     for (var id in dati) {
         var el = document.getElementById(id);
         if (el) el.textContent = dati[id];
-}
+    }
 }
 
-
+// alloca se clicco su un processo in coda, dealloca se clicco sulla RAM
 function mousePressed() {
     let posX = 220;
     let posY = 60;
     
+    // controllo coda processi
     for (let i = 0; i < codaProcessi.length; i++) {
         if (mouseX > posX && mouseX < posX + 80 && mouseY > posY && mouseY < posY + 50) {
             allocaProcesso(i);
